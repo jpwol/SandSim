@@ -1,6 +1,7 @@
 /build/
 /.vscode/
 /.cache/
+/bin/
 
 /CMakeFiles/
 /CMakeCache.txt

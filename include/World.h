@@ -1,6 +1,5 @@
 #pragma once
 
-class World{
-    public:
-
+class World {
+public:
 };

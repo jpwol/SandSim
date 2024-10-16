@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Sand VERSION 1.0)
+project(Sand)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -8,20 +8,24 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(GLOB SRC_FILES "src/*.cpp")
 
+set(BIN_DIR "${CMAKE_SOURCE_DIR}/bin")
+file(MAKE_DIRECTORY ${BIN_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
+
 add_executable(Sand ${SRC_FILES})
 
-include_directories(
-  SYSTEM 
-    C:/msys64/ucrt64/include
-    C:/SDL2/include
-)
+if(WIN32)
+  set(LIBS C://SDL2/lib/x64/SDL2main.lib C://SDL2/lib/x64/SDL2.lib)
+  set(SDL_INCLUDE C://SDL2/include/SDL2)
+elseif(UNIX)
+  set(LIBS SDL2main SDL2)
+endif()
+include_directories(SYSTEM C:/msys64/ucrt64/include C:/SDL2/include)
 
-target_include_directories(Sand PRIVATE include)
+if(WIN32)
+  target_include_directories(Sand PRIVATE include ${SDL_INCLUDE})
+elseif(UNIX)
+  target_include_directories(Sand PRIVATE include)
+endif()
 
-target_link_libraries(Sand
-  PRIVATE
-    C:/SDL2/lib/x64/SDL2main.lib
-    C:/SDL2/lib/x64/SDL2.lib
-)
-
-set_target_properties(Sand PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+target_link_libraries(Sand ${LIBS})
