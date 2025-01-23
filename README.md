@@ -3,7 +3,8 @@
 A very simple (and very inefficient) cellular automata for basic particle types. Made for my own enjoyment, simulates sand/water/fire/stone/wood.
 
 > [!WARNING]
-> Currently, most functionality is broken as I've started rewriting most of the logic. Unfortunately I didn't know about branches at the time and as a result, the main branch has suffered as a consequence.
+> Currently, most functionality is broken as I've started rewriting most of the logic. Unfortunately I didn't know about branches at the time and as a result, the main branch has suffered.
+> Sand and Stone logic work, and water is currently a more brightly colored stone.
 
 ## Dependencies
 
@@ -82,3 +83,14 @@ make
 ```
 
 There are currently no options for a release build, but you're free to build in release mode.
+
+## Usage
+
+- **Number keys 1-3** change between Sand/Water/Stone
+- **Left click** places whatever brush type you have selected
+- **Right click** erases a small area around the cursor
+- **Space** resets the simulation
+- **Escape** closes the simulation
+
+> [!BUG]
+> Currently there is a bug where sand that drips out of the left side of the screen will cause a crash. This is due to an array-access error and is being worked on.
