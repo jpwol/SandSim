@@ -92,5 +92,5 @@ There are currently no options for a release build, but you're free to build in 
 - **Space** resets the simulation
 - **Escape** closes the simulation
 
-> [!BUG]
+> [!WARNING]
 > Currently there is a bug where sand that drips out of the left side of the screen will cause a crash. This is due to an array-access error and is being worked on.
