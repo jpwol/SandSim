@@ -44,7 +44,7 @@ void Sim::run() {
   SDL_Event e;
 
   while (running) {
-    particleSystem.addParticle(width / 2, 1, ParticleType::Sand, 0xa39464FF);
+    // particleSystem.addParticle(width / 2, 1, ParticleType::Sand, 0xa39464FF);
     auto frameStart = std::chrono::high_resolution_clock::now();
     handleInput(e);
 
@@ -54,8 +54,7 @@ void Sim::run() {
 
     renderer.clear();
     auto renderStart = std::chrono::high_resolution_clock::now();
-    renderer.renderParticles(particleSystem.getParticles(),
-                             particleSystem.particleSize);
+    renderer.renderParticles(particleSystem);
     renderer.present();
     auto renderEnd = std::chrono::high_resolution_clock::now();
 
@@ -67,9 +66,12 @@ void Sim::run() {
     auto renderTime = std::chrono::duration_cast<std::chrono::microseconds>(
         renderEnd - renderStart);
     auto frameTime = std::chrono::duration_cast<std::chrono::microseconds>(
-        frameEnd - frameStart);
+                         frameEnd - frameStart)
+                         .count();
+    int fps = 1'000'000.0 / frameTime;
     std::cout << "Update: " << updateTime << " us | Render: " << renderTime
               << " us | Total: " << frameTime << " us | "
+              << "FPS: " << fps << " s | "
               << particleSystem.activeParticles.size() << " active particles | "
               << particleSystem.particles.size() << " total particles\n";
   }

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Particle.h"
+#include "ParticleSystem.h"
 
 class Renderer {
  public:
@@ -12,7 +13,7 @@ class Renderer {
   ~Renderer();
 
   void clear();
-  void renderParticles(const std::vector<Particle>& particles, uint8_t size);
+  void renderParticles(const ParticleSystem& ps);
   void present();
 
  private:

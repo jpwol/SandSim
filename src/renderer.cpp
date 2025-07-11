@@ -1,11 +1,6 @@
 #include "Renderer.h"
 
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_video.h>
-
 #include <iostream>
-
-#include "ParticleSystem.h"
 
 Renderer::Renderer(int width, int height) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -38,8 +33,7 @@ void Renderer::clear() {
   SDL_RenderClear(renderer);
 }
 
-void Renderer::renderParticles(const std::vector<Particle>& particles,
-                               uint8_t size) {
+void Renderer::renderParticles(const ParticleSystem& ps) {
   // change magic numbers to variable values!!!
   SDL_Texture* texture =
       SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
@@ -47,26 +41,16 @@ void Renderer::renderParticles(const std::vector<Particle>& particles,
   uint32_t* pixels;
   int pitch;
   SDL_LockTexture(texture, nullptr, (void**)&pixels, &pitch);
-  memset(pixels, 0xFF121212, (1280 / 2) * (720 / 2) * sizeof(uint32_t));
+  memset(pixels, 0xFF121212, ps.gridWidth * ps.gridHeight * sizeof(uint32_t));
 
-  for (auto& p : particles) {
-    int cellX = p.x / 2;
-    int cellY = p.y / 2;
-    pixels[cellY * (1280 / 2) + cellX] = p.color;
+  for (const auto& p : ps.getParticles()) {
+    int cellX = p.x / ps.particleSize;
+    int cellY = p.y / ps.particleSize;
+    pixels[cellY * ps.gridWidth + cellX] = ps.sandColors[p.colorVariantIndex];
   }
   SDL_UnlockTexture(texture);
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
   SDL_DestroyTexture(texture);
-  // for (const auto& p : particles) {
-  //   uint8_t r = (p.color >> 24) & 0xFF;
-  //   uint8_t g = (p.color >> 16) & 0xFF;
-  //   uint8_t b = (p.color >> 8) & 0xFF;
-  //   uint8_t a = p.color & 0xFF;
-
-  // SDL_SetRenderDrawColor(renderer, r, g, b, a);
-  // SDL_Rect rect{p.x, p.y, size, size};
-  // SDL_RenderFillRect(renderer, &rect);
-  // }
 }
 
 void Renderer::present() { SDL_RenderPresent(renderer); }
