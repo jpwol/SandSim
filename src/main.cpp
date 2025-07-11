@@ -1,7 +1,7 @@
 #include "Sim.h"
 
-int main(int argc, char **argv){
-    Sim sim;
-    sim.run();
-    return 0;
+int main() {
+  Sim sim{1280, 720};
+  sim.run();
+  return 0;
 }

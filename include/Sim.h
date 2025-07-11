@@ -1,26 +1,25 @@
 #pragma once
 
-#include "Elements.h"
-#include <SDL2/SDL.h>
-
-inline const int FPS = 60;
-inline const int D_DELTA = 1000 / FPS;
+#include "ParticleSystem.h"
+#include "Renderer.h"
 
 class Sim {
-  SDL_Window *window;
-  SDL_Renderer *renderer;
-
-  bool running = true;
-
-  CellularMatrix matrix;
-  B_TYPE type;
-  int mouseX, mouseY;
-  int mouseState;
-
-public:
-  void init();
-  void handleEvents();
-  void update();
-  void render();
+ public:
+  Sim(int _width, int _height)
+      : width(_width),
+        height(_height),
+        renderer(_width, _height),
+        particleSystem(_width, _height) {}
   void run();
+
+ private:
+  ParticleSystem particleSystem;
+  Renderer renderer;
+  void handleInput(SDL_Event& e);
+
+  int width, height;
+  bool running = true;
+  int mouseX, mouseY;
+
+  bool updating = true;
 };
