@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Particle.h"
+#include "Util.h"
 
 class ParticleSystem {
  public:
@@ -14,7 +15,7 @@ class ParticleSystem {
     particles.reserve(gridWidth * gridHeight);
     grid.resize(gridWidth * gridHeight, nullptr);
   }
-  void addParticle(int x, int y, ParticleType type, uint32_t color);
+  void addParticle(int x, int y, ParticleType type);
   void update();
   const std::vector<Particle>& getParticles() const;
   unsigned int getParticleCount();
@@ -25,9 +26,14 @@ class ParticleSystem {
   // private:
   int width, height;
   int gridWidth, gridHeight;
+  float sandFriction = 0.3f;
   std::vector<Particle> particles;
   std::vector<Particle*> grid;
   std::vector<Particle*> activeParticles;
+  std::vector<Particle*> queuedParticles;
+
+  void updateSand(Particle* p);
+  void reactivateNeighbors(Particle* p);
 
   static constexpr int numVariants = 16;
 

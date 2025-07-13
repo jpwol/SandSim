@@ -1,58 +1,110 @@
 #include "ParticleSystem.h"
 
-void ParticleSystem::addParticle(int x, int y, ParticleType type,
-                                 uint32_t color) {
+void ParticleSystem::addParticle(int x, int y, ParticleType type) {
   int cellX = x / particleSize;
   int cellY = y / particleSize;
-  particles.push_back({x, y, type, color});
-  grid[cellY * gridWidth + cellX] = &particles.back();
-  activeParticles.push_back(&particles.back());
+  if (grid[cellY * gridWidth + cellX] == nullptr) {
+    particles.push_back({x, y, type});
+    grid[cellY * gridWidth + cellX] = &particles.back();
+    activeParticles.push_back(&particles.back());
+  } else {
+    return;
+  }
 }
 
 void ParticleSystem::update() {
   for (auto& p : activeParticles) {
-    int cellX = p->x / particleSize;
-    int cellY = p->y / particleSize;
-    if (p->type == ParticleType::Sand) {
-      if (p->active && cellY + 1 < gridHeight) {
-        Particle* a = grid[(cellY + 1) * gridWidth + cellX];
-        Particle* b = grid[(cellY + 1) * gridWidth + (cellX - 1)];
-        Particle* c = grid[(cellY + 1) * gridWidth + (cellX + 1)];
-        if (a == nullptr || a->active) {
-          p->y += particleSize;
+    switch (p->type) {
+      case ParticleType::Sand:
+        updateSand(p);
+        break;
+      default:
+        break;
+    }
+  }
+  for (auto& p : queuedParticles) {
+    activeParticles.push_back(p);
+    p->queued = false;
+  }
+  queuedParticles.clear();
+  std::erase_if(activeParticles, [](Particle* p) { return !p->active; });
+}
 
-          grid[(cellY + 1) * gridWidth + cellX] =
-              grid[cellY * gridWidth + cellX];
-          grid[cellY * gridWidth + cellX] = nullptr;
-        } else if (b == nullptr || b->active) {
-          p->y += particleSize;
-          p->x -= particleSize;
+void ParticleSystem::updateSand(Particle* p) {
+  int cellX = p->x / particleSize;
+  int cellY = p->y / particleSize;
+  if (cellY + 1 < gridHeight) {
+    Particle* _this = grid[cellY * gridWidth + cellX];
+    Particle* a = grid[(cellY + 1) * gridWidth + cellX];        // one down
+    Particle* b = grid[(cellY + 1) * gridWidth + (cellX - 1)];  // one left
+    Particle* c = grid[(cellY + 1) * gridWidth + (cellX + 1)];  // one right
 
-          grid[(cellY + 1) * gridWidth + (cellX - 1)] =
-              grid[cellY * gridWidth + cellX];
-          grid[cellY * gridWidth + cellX] = nullptr;
-        } else if (c == nullptr || c->active) {
-          p->y += particleSize;
-          p->x += particleSize;
+    if (a == nullptr) {
+      p->y += particleSize;
 
-          grid[(cellY + 1) * gridWidth + (cellX + 1)] =
-              grid[cellY * gridWidth + cellX];
-          grid[cellY * gridWidth + cellX] = nullptr;
-        } else {
-          // p->velocity = 0;
-          p->active = false;
-        }
-      } else {
-        if (p->active && p->y + particleSize >= height) {
-          // p->velocity = 0;
-          p->y = height - particleSize;
-          p->active = false;
+      grid[(cellY + 1) * gridWidth + cellX] = grid[cellY * gridWidth + cellX];
+      grid[cellY * gridWidth + cellX] = nullptr;
+
+      reactivateNeighbors(p);
+
+      return;
+    }
+    if (b == nullptr) {
+      if (randomFloat() <= sandFriction) return;
+      p->x -= particleSize;
+      p->y += particleSize;
+
+      grid[(cellY + 1) * gridWidth + (cellX - 1)] =
+          grid[cellY * gridWidth + cellX];
+      grid[cellY * gridWidth + cellX] = nullptr;
+
+      reactivateNeighbors(p);
+
+      return;
+    }
+    if (c == nullptr) {
+      if (randomFloat() <= sandFriction) return;
+      p->x += particleSize;
+      p->y += particleSize;
+
+      grid[(cellY + 1) * gridWidth + (cellX + 1)] =
+          grid[cellY * gridWidth + cellX];
+      grid[cellY * gridWidth + cellX] = nullptr;
+
+      reactivateNeighbors(p);
+
+      return;
+    }
+
+    p->active = false;
+    return;
+  } else {
+    if (p->active && p->y + particleSize >= height) {
+      p->y = height - particleSize;
+      p->active = false;
+    }
+  }
+}
+
+void ParticleSystem::reactivateNeighbors(Particle* p) {
+  int cellX = p->x / particleSize;
+  int cellY = p->y / particleSize;
+
+  for (int y = 0; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      if (y == 0 && x == 0) continue;
+      if (cellY + y >= gridHeight) continue;
+
+      Particle* u = grid[(cellY + y) * gridWidth + (cellX + x)];
+      if (u != nullptr) {
+        if (u->active == false && u->queued == false) {
+          u->active = true;
+          u->queued = true;
+          queuedParticles.push_back(u);
         }
       }
     }
   }
-
-  std::erase_if(activeParticles, [](Particle* p) { return !p->active; });
 }
 
 const std::vector<Particle>& ParticleSystem::getParticles() const {

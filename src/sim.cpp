@@ -1,6 +1,7 @@
 #include "Sim.h"
 
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 
 void Sim::handleInput(SDL_Event& e) {
@@ -29,8 +30,7 @@ void Sim::handleInput(SDL_Event& e) {
     case 1:
       particleSystem.addParticle(
           mouseX - (mouseX % particleSystem.particleSize),
-          mouseY - (mouseY % particleSystem.particleSize), ParticleType::Sand,
-          0xFFFFFFFF);
+          mouseY - (mouseY % particleSystem.particleSize), ParticleType::Sand);
       break;
     case 3:
     case 4:
@@ -44,12 +44,15 @@ void Sim::run() {
   SDL_Event e;
 
   while (running) {
-    // particleSystem.addParticle(width / 2, 1, ParticleType::Sand, 0xa39464FF);
     auto frameStart = std::chrono::high_resolution_clock::now();
     handleInput(e);
 
     auto updateStart = std::chrono::high_resolution_clock::now();
-    if (updating) particleSystem.update();
+    // if (updating) {
+    //   particleSystem.addParticle(width / 2, 1, ParticleType::Sand,
+    //   0xa39464FF);
+    // }
+    particleSystem.update();
     auto updateEnd = std::chrono::high_resolution_clock::now();
 
     renderer.clear();
@@ -69,10 +72,12 @@ void Sim::run() {
                          frameEnd - frameStart)
                          .count();
     int fps = 1'000'000.0 / frameTime;
-    std::cout << "Update: " << updateTime << " us | Render: " << renderTime
-              << " us | Total: " << frameTime << " us | "
-              << "FPS: " << fps << " s | "
+    std::cout << "Update: " << std::setw(6) << updateTime
+              << " | Render: " << std::setw(6) << renderTime
+              << " | Total: " << std::setw(4) << frameTime << "us | "
+              << "FPS: " << std::setw(4) << fps << " | " << std::setw(6)
               << particleSystem.activeParticles.size() << " active particles | "
-              << particleSystem.particles.size() << " total particles\n";
+              << std::setw(6) << particleSystem.particles.size()
+              << " total particles\n";
   }
 }
