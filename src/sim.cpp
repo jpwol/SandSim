@@ -43,6 +43,7 @@ void Sim::handleInput(SDL_Event& e) {
 void Sim::run() {
   SDL_Event e;
 
+  int step = 0;
   while (running) {
     auto frameStart = std::chrono::high_resolution_clock::now();
     handleInput(e);
@@ -54,6 +55,7 @@ void Sim::run() {
     // }
     particleSystem.update();
     auto updateEnd = std::chrono::high_resolution_clock::now();
+    step++;
 
     renderer.clear();
     auto renderStart = std::chrono::high_resolution_clock::now();
@@ -61,7 +63,7 @@ void Sim::run() {
     renderer.present();
     auto renderEnd = std::chrono::high_resolution_clock::now();
 
-    // SDL_Delay(16);  // crude framecap, fix with deltatime
+    // SDL_Delay(32);  // crude framecap, fix with deltatime
     auto frameEnd = std::chrono::high_resolution_clock::now();
 
     auto updateTime = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -72,6 +74,10 @@ void Sim::run() {
                          frameEnd - frameStart)
                          .count();
     int fps = 1'000'000.0 / frameTime;
+
+    // if (step == 1000) {
+    step = 0;
+
     std::cout << "Update: " << std::setw(6) << updateTime
               << " | Render: " << std::setw(6) << renderTime
               << " | Total: " << std::setw(4) << frameTime << "us | "
@@ -79,5 +85,6 @@ void Sim::run() {
               << particleSystem.activeParticles.size() << " active particles | "
               << std::setw(6) << particleSystem.particles.size()
               << " total particles\n";
+    // }
   }
 }

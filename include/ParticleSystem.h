@@ -1,7 +1,10 @@
 #pragma once
+#include <SDL2/SDL.h>
+
 #include <array>
 #include <vector>
 
+#include "GridHelper.h"
 #include "Particle.h"
 #include "Util.h"
 
@@ -11,9 +14,9 @@ class ParticleSystem {
       : width(_width),
         height(_height),
         gridWidth(_width / particleSize),
-        gridHeight(_height / particleSize) {
+        gridHeight(_height / particleSize),
+        grid(gridWidth, gridHeight, particleSize) {
     particles.reserve(gridWidth * gridHeight);
-    grid.resize(gridWidth * gridHeight, nullptr);
   }
   void addParticle(int x, int y, ParticleType type);
   void update();
@@ -23,12 +26,14 @@ class ParticleSystem {
 
   static constexpr uint8_t particleSize = 2;
 
+  void moveParticle(int x1, int y1, int x2, int y2);
+
   // private:
   int width, height;
   int gridWidth, gridHeight;
-  float sandFriction = 0.3f;
+  float sandFriction = 0.2f;
+  GridHelper grid;
   std::vector<Particle> particles;
-  std::vector<Particle*> grid;
   std::vector<Particle*> activeParticles;
   std::vector<Particle*> queuedParticles;
 

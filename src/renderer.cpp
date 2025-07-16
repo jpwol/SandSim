@@ -35,9 +35,9 @@ void Renderer::clear() {
 
 void Renderer::renderParticles(const ParticleSystem& ps) {
   // change magic numbers to variable values!!!
-  SDL_Texture* texture =
-      SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-                        SDL_TEXTUREACCESS_STREAMING, 1280 / 2, 720 / 2);
+  SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           ps.gridWidth, ps.gridHeight);
   uint32_t* pixels;
   int pitch;
   SDL_LockTexture(texture, nullptr, (void**)&pixels, &pitch);
@@ -54,3 +54,5 @@ void Renderer::renderParticles(const ParticleSystem& ps) {
 }
 
 void Renderer::present() { SDL_RenderPresent(renderer); }
+
+SDL_Window* Renderer::getWindow() { return window; }

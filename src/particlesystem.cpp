@@ -3,9 +3,9 @@
 void ParticleSystem::addParticle(int x, int y, ParticleType type) {
   int cellX = x / particleSize;
   int cellY = y / particleSize;
-  if (grid[cellY * gridWidth + cellX] == nullptr) {
-    particles.push_back({x, y, type});
-    grid[cellY * gridWidth + cellX] = &particles.back();
+  if (grid.queryGrid(cellX, cellY)) {
+    particles.emplace_back(Particle{x, y, type});
+    grid.placeParticle(cellX, cellY, particles);
     activeParticles.push_back(&particles.back());
   } else {
     return;
@@ -34,42 +34,32 @@ void ParticleSystem::updateSand(Particle* p) {
   int cellX = p->x / particleSize;
   int cellY = p->y / particleSize;
   if (cellY + 1 < gridHeight) {
-    Particle* _this = grid[cellY * gridWidth + cellX];
-    Particle* a = grid[(cellY + 1) * gridWidth + cellX];        // one down
-    Particle* b = grid[(cellY + 1) * gridWidth + (cellX - 1)];  // one left
-    Particle* c = grid[(cellY + 1) * gridWidth + (cellX + 1)];  // one right
-
-    if (a == nullptr) {
+    if (grid.queryGrid(cellX, cellY + 1)) {
       p->y += particleSize;
 
-      grid[(cellY + 1) * gridWidth + cellX] = grid[cellY * gridWidth + cellX];
-      grid[cellY * gridWidth + cellX] = nullptr;
+      grid.moveParticle(cellX, cellY, cellX, cellY + 1);
 
       reactivateNeighbors(p);
 
       return;
     }
-    if (b == nullptr) {
+    if (grid.queryGrid(cellX - 1, cellY + 1)) {
       if (randomFloat() <= sandFriction) return;
       p->x -= particleSize;
       p->y += particleSize;
 
-      grid[(cellY + 1) * gridWidth + (cellX - 1)] =
-          grid[cellY * gridWidth + cellX];
-      grid[cellY * gridWidth + cellX] = nullptr;
+      grid.moveParticle(cellX, cellY, cellX - 1, cellY + 1);
 
       reactivateNeighbors(p);
 
       return;
     }
-    if (c == nullptr) {
+    if (grid.queryGrid(cellX + 1, cellY + 1)) {
       if (randomFloat() <= sandFriction) return;
       p->x += particleSize;
       p->y += particleSize;
 
-      grid[(cellY + 1) * gridWidth + (cellX + 1)] =
-          grid[cellY * gridWidth + cellX];
-      grid[cellY * gridWidth + cellX] = nullptr;
+      grid.moveParticle(cellX, cellY, cellX + 1, cellY + 1);
 
       reactivateNeighbors(p);
 
@@ -95,7 +85,7 @@ void ParticleSystem::reactivateNeighbors(Particle* p) {
       if (y == 0 && x == 0) continue;
       if (cellY + y >= gridHeight) continue;
 
-      Particle* u = grid[(cellY + y) * gridWidth + (cellX + x)];
+      Particle* u = grid.getParticle(cellX + x, cellY + y);
       if (u != nullptr) {
         if (u->active == false && u->queued == false) {
           u->active = true;

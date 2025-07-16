@@ -15,6 +15,7 @@ class Renderer {
   void clear();
   void renderParticles(const ParticleSystem& ps);
   void present();
+  SDL_Window* getWindow();
 
  private:
   SDL_Window* window = nullptr;
