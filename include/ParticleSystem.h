@@ -18,19 +18,20 @@ class ParticleSystem {
         grid(gridWidth, gridHeight, particleSize) {
     particles.reserve(gridWidth * gridHeight);
   }
+
+  const int gridWidth, gridHeight;
+
   void addParticle(int x, int y, ParticleType type);
   void update();
   const std::vector<Particle>& getParticles() const;
   unsigned int getParticleCount();
-  unsigned int getCapacity();
 
   static constexpr uint8_t particleSize = 2;
 
   void moveParticle(int x1, int y1, int x2, int y2);
 
-  // private:
+ private:
   int width, height;
-  int gridWidth, gridHeight;
   float sandFriction = 0.2f;
   GridHelper grid;
   std::vector<Particle> particles;
@@ -38,13 +39,7 @@ class ParticleSystem {
   std::vector<Particle*> queuedParticles;
 
   void updateSand(Particle* p);
+  void updateWater(Particle* p);
+  void updateStone(Particle* p);
   void reactivateNeighbors(Particle* p);
-
-  static constexpr int numVariants = 16;
-
-  std::array<uint32_t, numVariants> sandColors = {
-      0xA89563FF, 0xB0996AFF, 0xA18D59FF, 0xAF9266FF, 0xAA8F5EFF, 0xB59B6EFF,
-      0xA88B5BFF, 0xAC915FFF, 0xB3976BFF, 0xA78E5DFF, 0xB29A6AFF, 0xA99260FF,
-      0xB4976AFF, 0xA98F5FFF, 0xB19668FF, 0xAA9060FF,
-  };
 };

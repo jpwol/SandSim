@@ -18,6 +18,12 @@ void ParticleSystem::update() {
       case ParticleType::Sand:
         updateSand(p);
         break;
+      case ParticleType::Water:
+        updateWater(p);
+        break;
+      case ParticleType::Stone:
+        updateStone(p);
+        break;
       default:
         break;
     }
@@ -43,7 +49,7 @@ void ParticleSystem::updateSand(Particle* p) {
 
       return;
     }
-    if (grid.queryGrid(cellX - 1, cellY + 1)) {
+    if (cellX - 1 >= 0 && grid.queryGrid(cellX - 1, cellY + 1)) {
       if (randomFloat() <= sandFriction) return;
       p->x -= particleSize;
       p->y += particleSize;
@@ -54,7 +60,7 @@ void ParticleSystem::updateSand(Particle* p) {
 
       return;
     }
-    if (grid.queryGrid(cellX + 1, cellY + 1)) {
+    if (cellX + 1 <= gridWidth - 1 && grid.queryGrid(cellX + 1, cellY + 1)) {
       if (randomFloat() <= sandFriction) return;
       p->x += particleSize;
       p->y += particleSize;
@@ -76,6 +82,43 @@ void ParticleSystem::updateSand(Particle* p) {
   }
 }
 
+void ParticleSystem::updateWater(Particle* p) {
+  int cellX = p->x / particleSize;
+  int cellY = p->y / particleSize;
+
+  if (cellY + 1 < gridHeight) {
+    if (grid.queryGrid(cellX, cellY + 1)) {
+      p->y += particleSize;
+      grid.moveParticle(cellX, cellY, cellX, cellY + 1);
+
+      reactivateNeighbors(p);
+      return;
+    }
+    if (cellX - 1 >= 0 && grid.queryGrid(cellX - 1, cellY)) {
+      p->x -= particleSize;
+      grid.moveParticle(cellX, cellY, cellX - 1, cellY);
+      reactivateNeighbors(p);
+      return;
+    }
+    if (cellX + 1 <= gridWidth - 1 && grid.queryGrid(cellX + 1, cellY)) {
+      p->x += particleSize;
+      grid.moveParticle(cellX, cellY, cellX + 1, cellY);
+      reactivateNeighbors(p);
+      return;
+    }
+
+    p->active = false;
+    return;
+  } else {
+    if (p->active && p->y + particleSize >= height) {
+      p->y = height - particleSize;
+      p->active = false;
+    }
+  }
+}
+
+void ParticleSystem::updateStone(Particle* p) { p->active = false; }
+
 void ParticleSystem::reactivateNeighbors(Particle* p) {
   int cellX = p->x / particleSize;
   int cellY = p->y / particleSize;
@@ -83,7 +126,9 @@ void ParticleSystem::reactivateNeighbors(Particle* p) {
   for (int y = 0; y <= 1; y++) {
     for (int x = -1; x <= 1; x++) {
       if (y == 0 && x == 0) continue;
-      if (cellY + y >= gridHeight) continue;
+      if (cellY - y < 0 || cellY + y >= gridHeight || cellX - x < 0 ||
+          cellX + x >= gridWidth)
+        continue;
 
       Particle* u = grid.getParticle(cellX + x, cellY + y);
       if (u != nullptr) {
@@ -102,5 +147,3 @@ const std::vector<Particle>& ParticleSystem::getParticles() const {
 }
 
 unsigned int ParticleSystem::getParticleCount() { return particles.size(); }
-
-unsigned int ParticleSystem::getCapacity() { return particles.capacity(); }

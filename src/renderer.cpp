@@ -46,7 +46,19 @@ void Renderer::renderParticles(const ParticleSystem& ps) {
   for (const auto& p : ps.getParticles()) {
     int cellX = p.x / ps.particleSize;
     int cellY = p.y / ps.particleSize;
-    pixels[cellY * ps.gridWidth + cellX] = ps.sandColors[p.colorVariantIndex];
+    switch (p.type) {
+      case ParticleType::Sand:
+        pixels[cellY * ps.gridWidth + cellX] = sandColors[p.colorVariantIndex];
+        break;
+      case ParticleType::Water:
+        pixels[cellY * ps.gridWidth + cellX] = waterColors[p.colorVariantIndex];
+        break;
+      case ParticleType::Stone:
+        pixels[cellY * ps.gridWidth + cellX] = stoneColors[p.colorVariantIndex];
+        break;
+      default:
+        break;
+    }
   }
   SDL_UnlockTexture(texture);
   SDL_RenderCopy(renderer, texture, nullptr, nullptr);

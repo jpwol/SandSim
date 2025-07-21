@@ -15,6 +15,15 @@ void Sim::handleInput(SDL_Event& e) {
           case SDLK_SPACE:
             updating = !updating;
             break;
+          case SDLK_1:
+            brush = Brush::Sand;
+            break;
+          case SDLK_2:
+            brush = Brush::Water;
+            break;
+          case SDLK_3:
+            brush = Brush::Stone;
+            break;
           default:
             break;
         }
@@ -28,9 +37,10 @@ void Sim::handleInput(SDL_Event& e) {
     case 0:
       break;
     case 1:
-      particleSystem.addParticle(
-          mouseX - (mouseX % particleSystem.particleSize),
-          mouseY - (mouseY % particleSystem.particleSize), ParticleType::Sand);
+      if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height)
+        particleSystem.addParticle(
+            mouseX - (mouseX % particleSystem.particleSize),
+            mouseY - (mouseY % particleSystem.particleSize), brush);
       break;
     case 3:
     case 4:
@@ -49,12 +59,9 @@ void Sim::run() {
     handleInput(e);
 
     auto updateStart = std::chrono::high_resolution_clock::now();
-    // if (updating) {
-    //   particleSystem.addParticle(width / 2, 1, ParticleType::Sand,
-    //   0xa39464FF);
-    // }
     particleSystem.update();
     auto updateEnd = std::chrono::high_resolution_clock::now();
+
     step++;
 
     renderer.clear();
@@ -75,16 +82,15 @@ void Sim::run() {
                          .count();
     int fps = 1'000'000.0 / frameTime;
 
-    // if (step == 1000) {
-    step = 0;
+    if (step == 1000) {
+      step = 0;
 
-    std::cout << "Update: " << std::setw(6) << updateTime
-              << " | Render: " << std::setw(6) << renderTime
-              << " | Total: " << std::setw(4) << frameTime << "us | "
-              << "FPS: " << std::setw(4) << fps << " | " << std::setw(6)
-              << particleSystem.activeParticles.size() << " active particles | "
-              << std::setw(6) << particleSystem.particles.size()
-              << " total particles\n";
-    // }
+      std::cout << "Update: " << std::setw(6) << updateTime
+                << " | Render: " << std::setw(6) << renderTime
+                << " | Total: " << std::setw(4) << frameTime << "us | "
+                << "FPS: " << std::setw(4) << fps << " | " << std::setw(6)
+                << std::setw(6) << particleSystem.getParticleCount()
+                << " total particles\n";
+    }
   }
 }
