@@ -1,5 +1,7 @@
 #include "ParticleSystem.h"
 
+#include <iostream>
+
 void ParticleSystem::addParticle(int x, int y, ParticleType type) {
   int cellX = x / particleSize;
   int cellY = y / particleSize;
@@ -47,6 +49,15 @@ void ParticleSystem::updateSand(Particle* p) {
 
       reactivateNeighbors(p);
 
+      return;
+    }
+    if (grid.getTypeAtCell(cellX, cellY + 1) == ParticleType::Water) {
+      Particle* p2 = grid.getParticle(cellX, cellY + 1);
+      grid.swapParticle(cellX, cellY, cellX, cellY + 1);
+      p->y += particleSize;
+      p2->y -= particleSize;
+
+      reactivateNeighbors(p);
       return;
     }
     if (cellX - 1 >= 0 && grid.queryGrid(cellX - 1, cellY + 1)) {

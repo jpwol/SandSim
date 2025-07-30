@@ -22,7 +22,8 @@ class GridHelper {
 
   // moves a particle from cell (x1, y1) to cell (x2, y2) in the grid
   void moveParticle(int x1, int y1, int x2, int y2);
-  void swapParticle();
+  void swapParticle(int x1, int y1, int x2, int y2);
+  ParticleType getTypeAtCell(int cellX, int cellY);
 
  private:
   int particleSize;

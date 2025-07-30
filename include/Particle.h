@@ -9,8 +9,8 @@ enum class ParticleType { None, Sand, Water, Stone };
 
 struct Particle {
   int x, y;
-  Vec2 vel;
   ParticleType type;
+  Vec2 vel;
   int colorVariantIndex = rand() % 16;
 
   bool active = true;

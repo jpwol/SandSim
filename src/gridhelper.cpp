@@ -20,3 +20,13 @@ void GridHelper::moveParticle(int x1, int y1, int x2, int y2) {
   grid[y2 * gridWidth + x2] = grid[y1 * gridWidth + x1];
   grid[y1 * gridWidth + x1] = nullptr;
 }
+
+void GridHelper::swapParticle(int x1, int y1, int x2, int y2) {
+  Particle* tmp = grid[y2 * gridWidth + x2];
+  grid[y2 * gridWidth + x2] = grid[y1 * gridWidth + x1];
+  grid[y1 * gridWidth + x1] = tmp;
+}
+
+ParticleType GridHelper::getTypeAtCell(int cellX, int cellY) {
+  return grid[cellY * gridWidth + cellX]->type;
+}
