@@ -43,8 +43,6 @@ void ParticleSystem::updateSand(Particle* p) {
   int cellY = p->y / particleSize;
   if (cellY + 1 < gridHeight) {
     if (grid.queryGrid(cellX, cellY + 1)) {
-      p->y += particleSize;
-
       grid.moveParticle(cellX, cellY, cellX, cellY + 1);
 
       reactivateNeighbors(p);
@@ -54,16 +52,12 @@ void ParticleSystem::updateSand(Particle* p) {
     if (grid.getTypeAtCell(cellX, cellY + 1) == ParticleType::Water) {
       Particle* p2 = grid.getParticle(cellX, cellY + 1);
       grid.swapParticle(cellX, cellY, cellX, cellY + 1);
-      p->y += particleSize;
-      p2->y -= particleSize;
 
       reactivateNeighbors(p);
       return;
     }
     if (cellX - 1 >= 0 && grid.queryGrid(cellX - 1, cellY + 1)) {
       if (randomFloat() <= sandFriction) return;
-      p->x -= particleSize;
-      p->y += particleSize;
 
       grid.moveParticle(cellX, cellY, cellX - 1, cellY + 1);
 
@@ -73,8 +67,6 @@ void ParticleSystem::updateSand(Particle* p) {
     }
     if (cellX + 1 <= gridWidth - 1 && grid.queryGrid(cellX + 1, cellY + 1)) {
       if (randomFloat() <= sandFriction) return;
-      p->x += particleSize;
-      p->y += particleSize;
 
       grid.moveParticle(cellX, cellY, cellX + 1, cellY + 1);
 
@@ -99,20 +91,17 @@ void ParticleSystem::updateWater(Particle* p) {
 
   if (cellY + 1 < gridHeight) {
     if (grid.queryGrid(cellX, cellY + 1)) {
-      p->y += particleSize;
       grid.moveParticle(cellX, cellY, cellX, cellY + 1);
 
       reactivateNeighbors(p);
       return;
     }
     if (cellX - 1 >= 0 && grid.queryGrid(cellX - 1, cellY)) {
-      p->x -= particleSize;
       grid.moveParticle(cellX, cellY, cellX - 1, cellY);
       reactivateNeighbors(p);
       return;
     }
     if (cellX + 1 <= gridWidth - 1 && grid.queryGrid(cellX + 1, cellY)) {
-      p->x += particleSize;
       grid.moveParticle(cellX, cellY, cellX + 1, cellY);
       reactivateNeighbors(p);
       return;
